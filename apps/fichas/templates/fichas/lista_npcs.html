@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPCs</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { color: #ffcc00; }
+        .btn-home { padding: 8px 16px; background: #555; color: #fff; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
+        .btn-home:hover { background: #777; }
+        .search-box { margin-bottom: 20px; }
+        .search-box input { width: 100%; padding: 10px; border: none; border-radius: 5px; }
+        .npc-list { display: grid; gap: 15px; }
+        .npc-card { background: #333; padding: 15px; border-radius: 5px; border-left: 4px solid #ffcc00; cursor: pointer; transition: 0.2s; }
+        .npc-card:hover { background: #444; }
+        .npc-card h3 { color: #ffcc00; margin-bottom: 8px; }
+        .npc-card p { font-size: 14px; color: #ccc; margin-bottom: 10px; }
+        .npc-card a { color: #ffcc00; text-decoration: none; font-weight: bold; }
+        .npc-card a:hover { text-decoration: underline; }
+        .no-results { text-align: center; color: #999; padding: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📜 NPCs</h1>
+            <a href="{% url 'fichas:home' %}" class="btn-home">🏠 Home</a>
+        </div>
+        
+        <div class="search-box">
+            <form method="GET">
+                <input type="text" name="busca" placeholder="Pesquisar NPC..." value="{{ busca }}">
+            </form>
+        </div>
+        
+        {% if npcs %}
+            <div class="npc-list">
+                {% for npc in npcs %}
+                    <div class="npc-card">
+                        <h3>{{ npc.nome }}</h3>
+                        <p><strong>Descrição:</strong> {{ npc.descricao }}</p>
+                        <a href="{% url 'fichas:detalhe_npc' npc.id %}">Ver Ficha →</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <p>Nenhum NPC encontrado.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

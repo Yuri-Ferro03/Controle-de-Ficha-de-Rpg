@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monstros</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { color: #ff4444; }
+        .actions { display: flex; gap: 10px; }
+        .btn { padding: 8px 16px; background: #ff4444; color: #fff; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
+        .btn:hover { background: #cc0000; }
+        .btn-home { background: #555; }
+        .btn-home:hover { background: #777; }
+        .search-box { margin-bottom: 20px; }
+        .search-box input { width: 100%; padding: 10px; border: none; border-radius: 5px; }
+        .monstro-list { display: grid; gap: 15px; }
+        .monstro-card { background: #333; padding: 15px; border-radius: 5px; border-left: 4px solid #ff4444; }
+        .monstro-card h3 { color: #ff4444; margin-bottom: 8px; }
+        .monstro-card p { font-size: 14px; color: #ccc; margin-bottom: 10px; }
+        .monstro-card a { color: #ff4444; text-decoration: none; font-weight: bold; }
+        .monstro-card a:hover { text-decoration: underline; }
+        .no-results { text-align: center; color: #999; padding: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚔️ Monstros</h1>
+            <div class="actions">
+                <a href="{% url 'fichas:home' %}" class="btn btn-home">🏠 Home</a>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <form method="GET">
+                <input type="text" name="busca" placeholder="Pesquisar por nome ou tipo..." value="{{ busca }}">
+            </form>
+        </div>
+        
+        {% if monstros %}
+            <div class="monstro-list">
+                {% for monstro in monstros %}
+                    <div class="monstro-card">
+                        <h3>{{ monstro.nome }}</h3>
+                        <p><strong>Tipo:</strong> {{ monstro.tipo }}</p>
+                        <a href="{% url 'fichas:detalhe_monstro' monstro.id %}">Ver Ficha →</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <p>Nenhum monstro encontrado.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

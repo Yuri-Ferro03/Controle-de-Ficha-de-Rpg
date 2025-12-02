@@ -1,0 +1,7 @@
+Django>=4.2
+djangorestframework
+requests
+psycopg2-binary  # apenas se usar PostgreSQL
+python-dotenv>=1.0.0
+Pillow>=10.0.0
+django-cors-headers>=4.3.0

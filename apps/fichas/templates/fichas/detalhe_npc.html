@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ npc.nome }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { color: #ffcc00; }
+        .buttons { display: flex; gap: 10px; }
+        .btn { padding: 8px 16px; background: #555; color: #fff; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 14px; }
+        .btn:hover { background: #777; }
+        .btn-edit { background: #ffcc00; color: #000; }
+        .btn-edit:hover { background: #ffdd33; }
+        .ficha { background: #333; padding: 30px; border-radius: 8px; border-left: 4px solid #ffcc00; }
+        .field { margin-bottom: 20px; }
+        .field label { color: #ffcc00; font-weight: bold; display: block; margin-bottom: 5px; }
+        .field value { color: #ccc; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ npc.nome }}</h1>
+            <div class="buttons">
+                {% if user.is_authenticated and user == npc.criado_por or user.is_staff %}
+                    <a href="{% url 'fichas:editar_npc' npc.id %}" class="btn btn-edit">✏️ Editar</a>
+                {% endif %}
+                <a href="{% url 'fichas:lista_npcs' %}" class="btn">← Voltar</a>
+            </div>
+        </div>
+        
+        <div class="ficha">
+            <div class="field">
+                <label>Nome:</label>
+                <div class="value">{{ npc.nome }}</div>
+            </div>
+            <div class="field">
+                <label>Descrição:</label>
+                <div class="value">{{ npc.descricao|linebreaks }}</div>
+            </div>
+            <div class="field">
+                <label>Criado por:</label>
+                <div class="value">{{ npc.criado_por }}</div>
+            </div>
+            <div class="field">
+                <label>Data de criação:</label>
+                <div class="value">{{ npc.criado_em|date:"d/m/Y H:i" }}</div>
+            </div>
+            {% if npc.pdf %}
+            <div class="field">
+                <label>Arquivo:</label>
+                <div class="value"><a href="{{ npc.pdf.url }}" target="_blank">📄 Baixar PDF</a></div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

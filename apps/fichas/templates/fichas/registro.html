@@ -1,0 +1,84 @@
+{% extends 'fichas/home.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="card-title text-center mb-4">📝 Criar Conta</h2>
+        
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" role="alert">
+            <strong>Erro ao criar conta:</strong>
+            {% for error in form.non_field_errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label">Usuário:</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.username.errors %}
+                  <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <small class="text-muted d-block mt-1">150 caracteres ou menos. Apenas letras, números e @/./+/-/_</small>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.password1.id_for_label }}" class="form-label">Senha:</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.password1.errors %}
+                  <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <small class="text-muted d-block mt-1">
+              <ul class="mb-0">
+                <li>Sua senha não pode ser muito similar ao seu nome de usuário.</li>
+                <li>Sua senha deve conter pelo menos 8 caracteres.</li>
+                <li>Sua senha não pode ser uma senha comumente usada.</li>
+                <li>Sua senha não pode ser inteiramente numérica.</li>
+              </ul>
+            </small>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar Senha:</label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.password2.errors %}
+                  <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <small class="text-muted d-block mt-1">Digite a mesma senha para confirmação.</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 mb-2">Criar Conta</button>
+          <a href="/accounts/login/" class="btn btn-secondary w-100">Já tem conta? Faça login</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #id_username, #id_password1, #id_password2 {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+  }
+</style>
+{% endblock %}

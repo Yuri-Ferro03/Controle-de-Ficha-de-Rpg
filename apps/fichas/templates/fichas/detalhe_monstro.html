@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ monstro.nome }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { color: #ff4444; }
+        .btn { padding: 8px 16px; background: #555; color: #fff; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
+        .btn:hover { background: #777; }
+        .ficha { background: #333; padding: 30px; border-radius: 8px; border-left: 4px solid #ff4444; }
+        .field { margin-bottom: 20px; }
+        .field label { color: #ff4444; font-weight: bold; display: block; margin-bottom: 5px; }
+        .field value { color: #ccc; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ monstro.nome }}</h1>
+            <a href="{% url 'fichas:lista_monstros' %}" class="btn">← Voltar</a>
+        </div>
+        
+        <div class="ficha">
+            <div class="field">
+                <label>Nome:</label>
+                <div class="value">{{ monstro.nome }}</div>
+            </div>
+            <div class="field">
+                <label>Tipo:</label>
+                <div class="value">{{ monstro.tipo }}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+{% extends 'fichas/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="card-title text-center mb-4">🔐 Login</h2>
+        
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" role="alert">
+            <strong>Erro de login:</strong>
+            {% for error in form.non_field_errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label">Usuário:</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.username.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.password.id_for_label }}" class="form-label">Senha:</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.password.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Entrar</button>
+        </form>
+
+        <hr class="my-4">
+        <p class="text-center text-muted small">
+          Não tem uma conta? <a href="{% url 'registro' %}">Crie uma aqui</a>
+        </p>
+        <p class="text-center">
+          <a href="{% url 'home' %}" class="link-primary">← Voltar para Home</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #id_username, #id_password {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+  }
+</style>
+{% endblock %}
