@@ -5,7 +5,7 @@
   <div class="col-md-8">
     <div class="card shadow">
       <div class="card-body">
-        <h2 class="card-title mb-4">📝 Editar NPC: {{ npc.nome }}</h2>
+        <h2 class="card-title mb-4">📝 Editar Monstro: {{ monstro.nome }}</h2>
         
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
@@ -29,12 +29,10 @@
           {% endfor %}
 
           <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-warning">✏️ Atualizar NPC</button>
-            <a href="{% url 'fichas:detalhe_npc' npc.id %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-warning">✏️ Atualizar Monstro</button>
+            <a href="{% url 'fichas:detalhe_monstro' monstro.id %}" class="btn btn-secondary">Cancelar</a>
           </div>
         </form>
       </div>
     </div>
   </div>
-</div>
-{% endblock %}

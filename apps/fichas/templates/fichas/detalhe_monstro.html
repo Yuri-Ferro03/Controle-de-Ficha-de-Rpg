@@ -34,6 +34,12 @@
                 <label>Tipo:</label>
                 <div class="value">{{ monstro.tipo }}</div>
             </div>
+              {% if monstro.pdf %}
+            <div class="field">
+                <label>Arquivo:</label>
+                <div class="value"><a href="{{ monstro.pdf.url }}" target="_blank">📄 Baixar PDF</a></div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </body>

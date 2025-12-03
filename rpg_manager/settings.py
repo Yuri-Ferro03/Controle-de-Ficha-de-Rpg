@@ -73,3 +73,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ]
 }
+# Permite que o conteúdo seja incorporado em um iframe.
+# Use isso se o PDF carregar na nova aba, mas não no iframe.
+X_FRAME_OPTIONS = 'SAMEORIGIN'

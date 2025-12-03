@@ -3,7 +3,4 @@
   <h1>{{ monstro.nome }}</h1>
   <p><strong>Tipo:</strong> {{ monstro.tipo }}</p>
   <pre style="white-space:pre-wrap;">{{ monstro.dados_completos|json_script:"dados" }}</pre>
-  {% if monstro.pdf %}
-    <p><a href="{{ monstro.pdf.url }}" target="_blank">Baixar PDF</a></p>
-  {% endif %}
 {% endblock %}

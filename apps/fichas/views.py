@@ -166,3 +166,18 @@ def editar_npc(request, id):
     context = {'form': form, 'npc': npc}
     return render(request, 'fichas/editar_npc.html', context)
 
+@login_required
+def editar_monstro(request, id):
+    monstro = get_object_or_404(Monstro, id=id)
+    
+    if request.method == 'POST':
+        form = MonstroForm(request.POST, request.FILES, instance=monstro)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Monstro atualizado com sucesso!')
+            return redirect('fichas:detalhe_monstro', id=monstro.id)
+    else:
+        form = MonstroForm(instance=monstro)
+    
+    context = {'form': form, 'monstro': monstro}
+    return render(request, 'fichas/editar_monstro.html', context)
