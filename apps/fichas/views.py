@@ -43,32 +43,6 @@ def npc_create(request):
     else:
         form = NPCForm()
     return render(request, 'fichas/npc_create.html', {'form': form})
-@login_required
-def importar_5etools(request):
-    urls = [
-        'https://5e.tools/data/bestiary/bestiary-mm.json',
-        'https://5e.tools/data/bestiary/bestiary-vgm.json',
-    ]
-    imported = 0
-    for url in urls:
-        try:
-            r = requests.get(url, timeout=15)
-            r.raise_for_status()
-            data = r.json()
-            for m in data.get('monster', []):
-                Monstro.objects.update_or_create(
-                    nome=m.get('name', 'Unknown'),
-                    defaults={
-                        'tipo': m.get('type', ''),
-                        'dados_completos': m,
-                        'source': url,
-                    }
-                )
-                imported += 1
-        except Exception as e:
-            messages.error(request, f'Erro ao importar {url}: {e}')
-    messages.success(request, f'Importação finalizada. {imported} monstros importados/atualizados.')
-    return redirect('fichas:monstro_list')
 
 def home(request):
     recent_npcs = NPC.objects.all().order_by('-criado_em')[:6]
@@ -181,3 +155,39 @@ def editar_monstro(request, id):
     
     context = {'form': form, 'monstro': monstro}
     return render(request, 'fichas/editar_monstro.html', context)
+
+@login_required
+def deletar_npc(request, id):
+    npc = get_object_or_404(NPC, id=id)
+    
+    # Apenas o criador ou admin pode deletar
+    if npc.criado_por != request.user and not request.user.is_staff:
+        messages.error(request, 'Você não tem permissão para deletar este NPC.')
+        return redirect('fichas:detalhe_npc', id=npc.id)
+    
+    if request.method == 'POST':
+        npc.delete()
+        messages.success(request, 'NPC deletado com sucesso!')
+        return redirect('fichas:lista_npcs')
+    
+    context = {'npc': npc}
+    return render(request, 'fichas/deletar_npc.html', context)
+
+@login_required
+def deletar_monstro(request, id):
+    monstro = get_object_or_404(Monstro, id=id)
+    
+    if request.method == 'POST':
+        monstro.delete()
+        messages.success(request, 'Monstro deletado com sucesso!')
+        return redirect('fichas:lista_monstros')
+    
+    context = {'monstro': monstro}
+    return render(request, 'fichas/deletar_monstro.html', context)
+
+def logout(request):
+    """View para logout do usuário"""
+    from django.contrib.auth import logout
+    logout(request)
+    messages.info(request, 'Você saiu da sua conta.')
+    return redirect('fichas:home')

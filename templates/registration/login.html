@@ -1,11 +1,11 @@
-{% extends 'fichas/base.html' %}
+{% extends "fichas/home.html" %}
 
 {% block content %}
 <div class="row justify-content-center mt-5">
   <div class="col-md-5">
     <div class="card shadow">
       <div class="card-body">
-        <h2 class="card-title text-center mb-4">🔐 Login</h2>
+        <h2 class="card-title text-center mb-4"> Login</h2>
         
         {% if form.non_field_errors %}
           <div class="alert alert-danger" role="alert">
@@ -51,7 +51,7 @@
           Não tem uma conta? <a href="{% url 'registro' %}">Crie uma aqui</a>
         </p>
         <p class="text-center">
-          <a href="{% url 'home' %}" class="link-primary">← Voltar para Home</a>
+          <a href="{% url 'home' %}" class="link-primary"> Voltar para Home</a>
         </p>
       </div>
     </div>

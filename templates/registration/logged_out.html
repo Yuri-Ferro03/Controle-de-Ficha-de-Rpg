@@ -1,4 +1,4 @@
-{% extends 'fichas/base.html' %}
+{% extends 'fichas/home.html' %}
 
 {% block content %}
 <div class="row justify-content-center mt-5">
@@ -6,10 +6,9 @@
     <div class="card shadow">
       <div class="card-body text-center">
         <h2 class="card-title mb-4">✅ Logout realizado com sucesso!</h2>
-        <p class="text-muted">Você foi desconectado da aplicação.</p>
         <div class="d-flex gap-2 justify-content-center">
-          <a href="{% url 'fichas:home' %}" class="btn btn-primary">🏠 Voltar para Home</a>
-          <a href="{% url 'accounts:login' %}" class="btn btn-secondary">🔐 Fazer Login</a>
+          <a href="{% url 'fichas:home' %}" class="btn btn-primary"> Voltar para Home</a>
+          <a href="{% url 'login' %}" class="btn btn-secondary"> Fazer Login</a>
         </div>
       </div>
     </div>

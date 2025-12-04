@@ -6,7 +6,7 @@ from apps.fichas import views as fichas_views
 from django.views.generic.base import RedirectView
 
 urlpatterns = [
-    path('', RedirectView.as_view(url='fichas/', permanent=False)),
+    path('', RedirectView.as_view(url='fichas/', permanent=False), name='home'),
     path('admin/', admin.site.urls),
     path('fichas/', include(('apps.fichas.urls', 'fichas'), namespace='fichas')),
     path('api/', include('apps.fichas.api_urls')),
