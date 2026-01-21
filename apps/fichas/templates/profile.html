@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-br">
+ <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perfil - RPG Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+ </head>
+ <body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+   <div class="container">
+    <a class="navbar-brand" href="{% url 'fichas:home' %}">🐉 RPG Manager</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+     <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+     <ul class="navbar-nav ms-auto">
+      <li class="nav-item"><a class="nav-link" href="{% url 'fichas:lista_npcs' %}">NPCs</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'fichas:lista_monstros' %}">Monstros</a></li>
+     </ul>
+    </div>
+   </div>
+  </nav>
+
+    <div class="container">
+     <div class="row">
+        <div class="col-md-4">
+         <div class="card mb-3">
+            <div class="card-body">
+             <h5 class="card-title">{{ profile_user.username }}</h5>
+             {% if is_owner %}
+                 <p class="card-text mb-1"><strong>Email:</strong> {{ profile_user.email|default:'—' }}</p>
+                 <p class="card-text"><strong>Staff:</strong> {{ profile_user.is_staff }}</p>
+             {% else %}
+                 <p class="card-text text-muted">Perfil público</p>
+             {% endif %}
+            </div>
+         </div>
+        </div>
+        <div class="col-md-8">
+         <div class="card">
+            <div class="card-body">
+             <h5 class="card-title">{% if is_owner %}Meus NPCs{% else %}NPCs deste usuário{% endif %}</h5>
+             {% if npcs %}
+                <div class="list-group">
+                 {% for npc in npcs %}
+                    <a href="{% url 'fichas:detalhe_npc' npc.id %}" class="list-group-item list-group-item-action">
+                     <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ npc.nome }}</h6>
+                        <small class="text-muted">{{ npc.criado_em|date:"d/m/Y" }}</small>
+                     </div>
+                     <small class="text-muted">{{ npc.descricao|truncatechars:80 }}</small>
+                    </a>
+                 {% endfor %}
+                </div>
+             {% else %}
+                <p class="text-muted mb-0">Nenhum NPC encontrado.</p>
+             {% endif %}
+            </div>
+         </div>
+        </div>
+     </div>
+    </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ </body>
+</html>

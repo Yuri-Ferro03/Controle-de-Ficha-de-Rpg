@@ -30,3 +30,32 @@ class Monstro(models.Model):
     def __str__(self):
         return self.nome
     
+
+class InitiativeSession(models.Model):
+    nome = models.CharField(max_length=200)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    current_index = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.nome} ({self.owner})"
+
+    def participants_ordered(self):
+        return self.participants.order_by('-initiative', 'created_at')
+
+    def participant_count(self):
+        return self.participants.count()
+
+
+class InitiativeParticipant(models.Model):
+    session = models.ForeignKey(InitiativeSession, related_name='participants', on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    initiative = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-initiative', 'created_at']
+
+    def __str__(self):
+        return f"{self.name} ({self.initiative})"
+    

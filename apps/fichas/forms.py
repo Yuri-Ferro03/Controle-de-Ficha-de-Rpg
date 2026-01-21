@@ -1,5 +1,25 @@
 from django import forms
 from .models import NPC, Monstro
+from .models import InitiativeSession, InitiativeParticipant
+
+
+class InitiativeSessionForm(forms.ModelForm):
+    class Meta:
+        model = InitiativeSession
+        fields = ['nome']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome da sessão de iniciativa'})
+        }
+
+
+class InitiativeParticipantForm(forms.ModelForm):
+    class Meta:
+        model = InitiativeParticipant
+        fields = ['name', 'initiative']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome do participante'}),
+            'initiative': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Valor de iniciativa'})
+        }
 
 class NPCForm(forms.ModelForm):
     class Meta:
