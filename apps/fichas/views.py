@@ -5,9 +5,13 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.db.models import Q
-from .models import Monstro, NPC
-from .forms import NPCForm, MonstroForm
+from django.urls import reverse
+from .models import Monstro, NPC, InitiativeSession, InitiativeParticipant
+from .forms import NPCForm, MonstroForm, InitiativeSessionForm, InitiativeParticipantForm
 import requests
+
+
+TRACKER_SESSION_KEY = "initiative_tracker"
 
 @require_http_methods(["GET", "POST"])
 def registro(request):
@@ -47,9 +51,11 @@ def npc_create(request):
 def home(request):
     recent_npcs = NPC.objects.all().order_by('-criado_em')[:6]
     recent_monstros = Monstro.objects.all().order_by('-criado_em')[:6]
+    tracker = _get_initiative_tracker(request)
     context = {
         'recent_npcs': recent_npcs,
         'recent_monstros': recent_monstros,
+        'initiative_tracker': tracker,
     }
     return render(request, 'fichas/home.html', context)
 
@@ -64,12 +70,12 @@ def lista_npcs(request):
         'npcs': npcs,
         'busca': busca
     }
-    return render(request, 'fichas/lista_npcs.html', context)
+    return render(request, 'fichas/npcs/lista_npcs.html', context)
 
 def detalhe_npc(request, id):
     npc = get_object_or_404(NPC, id=id)
     context = {'npc': npc}
-    return render(request, 'fichas/detalhe_npc.html', context)
+    return render(request, 'fichas/npcs/detalhe_npc.html', context)
 
 def lista_monstros(request):
     monstros = Monstro.objects.all().order_by('nome')
@@ -82,12 +88,12 @@ def lista_monstros(request):
         'monstros': monstros,
         'busca': busca
     }
-    return render(request, 'fichas/lista_monstros.html', context)
+    return render(request, 'fichas/monstros/lista_monstros.html', context)
 
 def detalhe_monstro(request, id):
     monstro = get_object_or_404(Monstro, id=id)
     context = {'monstro': monstro}
-    return render(request, 'fichas/detalhe_monstro.html', context)
+    return render(request, 'fichas/monstros/detalhe_monstro.html', context)
 
 @login_required
 def criar_npc(request):
@@ -103,7 +109,7 @@ def criar_npc(request):
         form = NPCForm()
     
     context = {'form': form}
-    return render(request, 'fichas/criar_npc.html', context)
+    return render(request, 'fichas/npcs/criar_npc.html', context)
 
 @login_required
 def criar_monstro(request):
@@ -117,7 +123,7 @@ def criar_monstro(request):
         form = MonstroForm()
     
     context = {'form': form}
-    return render(request, 'fichas/criar_monstro.html', context)
+    return render(request, 'fichas/monstros/criar_monstro.html', context)
 
 @login_required
 def editar_npc(request, id):
@@ -138,7 +144,7 @@ def editar_npc(request, id):
         form = NPCForm(instance=npc)
     
     context = {'form': form, 'npc': npc}
-    return render(request, 'fichas/editar_npc.html', context)
+    return render(request, 'fichas/npcs/editar_npc.html', context)
 
 @login_required
 def editar_monstro(request, id):
@@ -154,7 +160,7 @@ def editar_monstro(request, id):
         form = MonstroForm(instance=monstro)
     
     context = {'form': form, 'monstro': monstro}
-    return render(request, 'fichas/editar_monstro.html', context)
+    return render(request, 'fichas/monstros/editar_monstro.html', context)
 
 @login_required
 def deletar_npc(request, id):
@@ -171,7 +177,7 @@ def deletar_npc(request, id):
         return redirect('fichas:lista_npcs')
     
     context = {'npc': npc}
-    return render(request, 'fichas/deletar_npc.html', context)
+    return render(request, 'fichas/npcs/deletar_npc.html', context)
 
 @login_required
 def deletar_monstro(request, id):
@@ -183,7 +189,7 @@ def deletar_monstro(request, id):
         return redirect('fichas:lista_monstros')
     
     context = {'monstro': monstro}
-    return render(request, 'fichas/deletar_monstro.html', context)
+    return render(request, 'fichas/monstros/deletar_monstro.html', context)
 
 def logout(request):
     """View para logout do usuário"""
@@ -191,3 +197,184 @@ def logout(request):
     logout(request)
     messages.info(request, 'Você saiu da sua conta.')
     return redirect('fichas:home')
+
+
+def _get_initiative_tracker(request):
+    tracker = request.session.get(TRACKER_SESSION_KEY)
+    if not tracker:
+        tracker = {"participants": [], "current_index": 0, "next_id": 1}
+        request.session[TRACKER_SESSION_KEY] = tracker
+    return tracker
+
+
+@login_required
+def perfil(request):
+    return perfil_usuario(request, request.user.username)
+
+
+@login_required
+def perfil_usuario(request, username):
+    profile_user = get_object_or_404(User, username=username)
+    is_owner = profile_user == request.user
+    npcs = NPC.objects.filter(criado_por=profile_user).order_by('-criado_em')
+    context = {
+        "profile_user": profile_user,
+        "is_owner": is_owner,
+        "npcs": npcs,
+    }
+    return render(request, 'fichas/profile.html', context)
+
+
+@login_required
+def iniciativa_list(request):
+    sessions = InitiativeSession.objects.filter(owner=request.user).order_by('-criado_em')
+    context = {"sessions": sessions}
+    return render(request, 'fichas/iniciativa_list.html', context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def iniciativa_create(request):
+    if request.method == 'POST':
+        form = InitiativeSessionForm(request.POST)
+        if form.is_valid():
+            session = form.save(commit=False)
+            session.owner = request.user
+            session.save()
+            messages.success(request, 'Sessão de iniciativa criada com sucesso.')
+            return redirect('fichas:iniciativa_detail', session_id=session.id)
+    else:
+        form = InitiativeSessionForm()
+    context = {"form": form}
+    return render(request, 'fichas/iniciativa_create.html', context)
+
+
+@login_required
+def iniciativa_detail(request, session_id):
+    session = get_object_or_404(InitiativeSession, id=session_id, owner=request.user)
+    participants = session.participants.all()
+    context = {
+        "session": session,
+        "participants": participants,
+    }
+    return render(request, 'fichas/iniciativa_detail.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def iniciativa_add_participant(request, session_id):
+    session = get_object_or_404(InitiativeSession, id=session_id, owner=request.user)
+    form = InitiativeParticipantForm(request.POST)
+    if form.is_valid():
+        participant = form.save(commit=False)
+        participant.session = session
+        participant.save()
+        messages.success(request, 'Participante adicionado à iniciativa.')
+    return redirect('fichas:iniciativa_detail', session_id=session.id)
+
+
+@login_required
+@require_http_methods(["POST"])
+def iniciativa_next(request, session_id):
+    session = get_object_or_404(InitiativeSession, id=session_id, owner=request.user)
+    count = session.participant_count()
+    if count:
+        session.current_index = (session.current_index + 1) % count
+        session.save(update_fields=["current_index"])
+    return redirect('fichas:iniciativa_detail', session_id=session.id)
+
+
+@login_required
+@require_http_methods(["POST"])
+def iniciativa_prev(request, session_id):
+    session = get_object_or_404(InitiativeSession, id=session_id, owner=request.user)
+    count = session.participant_count()
+    if count:
+        session.current_index = (session.current_index - 1) % count
+        session.save(update_fields=["current_index"])
+    return redirect('fichas:iniciativa_detail', session_id=session.id)
+
+
+@login_required
+@require_http_methods(["POST"])
+def iniciativa_simple_add(request):
+    tracker = _get_initiative_tracker(request)
+    name = request.POST.get('name', '').strip()
+    initiative_raw = request.POST.get('initiative', '0')
+    try:
+        initiative = int(initiative_raw)
+    except (TypeError, ValueError):
+        initiative = 0
+    if name:
+        next_id = tracker.get('next_id', 1)
+        participants = tracker.get('participants', [])
+        participants.append({"id": next_id, "name": name, "initiative": initiative})
+        participants.sort(key=lambda p: (-p.get('initiative', 0), p.get('id', 0)))
+        tracker['participants'] = participants
+        tracker['next_id'] = next_id + 1
+        if tracker.get('current_index', 0) >= len(participants):
+            tracker['current_index'] = 0
+        request.session[TRACKER_SESSION_KEY] = tracker
+    home_url = reverse('fichas:home') + '?initiative=open'
+    return redirect(home_url)
+
+
+@login_required
+@require_http_methods(["POST"])
+def iniciativa_simple_remove(request):
+    tracker = _get_initiative_tracker(request)
+    pid_raw = request.POST.get('pid')
+    try:
+        pid = int(pid_raw)
+    except (TypeError, ValueError):
+        pid = None
+    participants = tracker.get('participants', [])
+    if pid is not None:
+        participants = [p for p in participants if p.get('id') != pid]
+        tracker['participants'] = participants
+        if participants:
+            current_index = tracker.get('current_index', 0)
+            if current_index >= len(participants):
+                tracker['current_index'] = 0
+        else:
+            tracker['current_index'] = 0
+    request.session[TRACKER_SESSION_KEY] = tracker
+    home_url = reverse('fichas:home') + '?initiative=open'
+    return redirect(home_url)
+
+
+@login_required
+@require_http_methods(["POST"])
+def iniciativa_simple_next(request):
+    tracker = _get_initiative_tracker(request)
+    participants = tracker.get('participants', [])
+    if participants:
+        current_index = tracker.get('current_index', 0)
+        current_index = (current_index + 1) % len(participants)
+        tracker['current_index'] = current_index
+        request.session[TRACKER_SESSION_KEY] = tracker
+    home_url = reverse('fichas:home') + '?initiative=open'
+    return redirect(home_url)
+
+
+@login_required
+@require_http_methods(["POST"])
+def iniciativa_simple_prev(request):
+    tracker = _get_initiative_tracker(request)
+    participants = tracker.get('participants', [])
+    if participants:
+        current_index = tracker.get('current_index', 0)
+        current_index = (current_index - 1) % len(participants)
+        tracker['current_index'] = current_index
+        request.session[TRACKER_SESSION_KEY] = tracker
+    home_url = reverse('fichas:home') + '?initiative=open'
+    return redirect(home_url)
+
+
+@login_required
+@require_http_methods(["POST"])
+def iniciativa_simple_clear(request):
+    tracker = {"participants": [], "current_index": 0, "next_id": 1}
+    request.session[TRACKER_SESSION_KEY] = tracker
+    home_url = reverse('fichas:home') + '?initiative=open'
+    return redirect(home_url)

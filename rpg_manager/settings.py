@@ -76,3 +76,6 @@ REST_FRAMEWORK = {
 # Permite que o conteúdo seja incorporado em um iframe.
 # Use isso se o PDF carregar na nova aba, mas não no iframe.
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Após login, redirecionar para a home das fichas
+LOGIN_REDIRECT_URL = '/fichas/'
