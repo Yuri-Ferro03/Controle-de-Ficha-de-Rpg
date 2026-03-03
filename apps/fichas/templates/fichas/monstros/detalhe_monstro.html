@@ -6,38 +6,269 @@
     <title>{{ monstro.nome }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        h1 { color: #ff4444; }
-        .btn { padding: 8px 16px; background: #555; color: #fff; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #fff; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #ff4444; padding-bottom: 20px; }
+        h1 { color: #ff4444; font-size: 2em; text-shadow: 0 2px 10px rgba(255, 68, 68, 0.3); }
+        .btn { padding: 10px 20px; background: #555; color: #fff; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; font-weight: bold; transition: all 0.3s; }
         .btn:hover { background: #777; }
-        .ficha { background: #333; padding: 30px; border-radius: 8px; border-left: 4px solid #ff4444; }
-        .field { margin-bottom: 20px; }
-        .field label { color: #ff4444; font-weight: bold; display: block; margin-bottom: 5px; }
-        .field value { color: #ccc; font-size: 16px; }
+        
+        .ficha { background: #2a2a2a; padding: 30px; border-radius: 8px; border-left: 5px solid #ff4444; }
+        
+        .title-section { display: flex; gap: 15px; align-items: start; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #444; }
+        .title-section h2 { font-size: 1.8em; color: #ff4444; flex: 1; }
+        .badges { display: flex; gap: 10px; flex-wrap: wrap; }
+        .badge { background: #ff4444; color: #1a1a1a; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
+        .badge-small { background: #555; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-box { background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #444; text-align: center; }
+        .stat-box-label { color: #888; font-size: 0.75em; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        .stat-box-value { color: #ff4444; font-weight: bold; font-size: 2em; }
+        
+        .section { margin-bottom: 25px; }
+        .section h3 { color: #ff4444; margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .info-item { background: #1a1a1a; padding: 15px; border-radius: 5px; border-left: 3px solid #ff4444; }
+        .info-label { color: #888; font-size: 0.85em; text-transform: uppercase; margin-bottom: 5px; }
+        .info-value { color: #fff; font-size: 1.1em; font-weight: 500; }
+        
+        .attributes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .attribute { background: #1a1a1a; padding: 15px; border-radius: 5px; text-align: center; }
+        .attribute-name { color: #ff4444; font-weight: bold; margin-bottom: 5px; }
+        .attribute-value { font-size: 1.6em; color: #fff; font-weight: bold; }
+        
+        .traits { background: #1a1a1a; padding: 15px; border-radius: 5px; }
+        .trait { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #444; }
+        .trait:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .trait-name { color: #ff4444; font-weight: bold; margin-bottom: 5px; }
+        .trait-description { color: #ccc; line-height: 1.6; font-size: 0.95em; }
+        
+        .common-data { background: #1a1a1a; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .common-line { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #444; }
+        .common-line:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .common-label { color: #888; }
+        .common-value { color: #ff4444; font-weight: bold; }
+        
+        .json-data { background: #1a1a1a; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto; border: 1px solid #444; }
+        .json-data details { margin-bottom: 10px; }
+        .json-data summary { color: #ff4444; cursor: pointer; padding: 8px; background: #2a2a2a; border-radius: 4px; margin-bottom: 10px; }
+        .json-data details[open] summary { background: #444; }
+        .json-data pre { color: #ccc; font-size: 0.85em; overflow-x: auto; }
+        
+        .no-data { color: #888; font-style: italic; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>{{ monstro.nome }}</h1>
+            <h1>⚔️ Ficha do Monstro</h1>
             <a href="{% url 'fichas:lista_monstros' %}" class="btn">← Voltar</a>
         </div>
         
         <div class="ficha">
-            <div class="field">
-                <label>Nome:</label>
-                <div class="value">{{ monstro.nome }}</div>
+            <!-- Título e badges -->
+            <div class="title-section">
+                <div>
+                    <h2>{{ monstro.nome }}</h2>
+                    <div class="badges">
+                        {% if monstro.cr %}
+                            <span class="badge">CR {{ monstro.cr }}</span>
+                        {% endif %}
+                        {% if monstro.tipo %}
+                            <span class="badge-small">{{ monstro.tipo }}</span>
+                        {% endif %}
+                        {% if monstro.tamanho %}
+                            <span class="badge-small">{{ monstro.tamanho }}</span>
+                        {% endif %}
+                        {% if monstro.source %}
+                            <span class="badge-small">📖 {{ monstro.source }}</span>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <div class="field">
-                <label>Tipo:</label>
-                <div class="value">{{ monstro.tipo }}</div>
+            
+            <!-- Stats principais -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-box-label">Pontos de Vida</div>
+                    <div class="stat-box-value">{{ monstro.hp_media|default:"—" }}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-label">Armor Class (AC)</div>
+                    <div class="stat-box-value">{{ monstro.ac|default:"—" }}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-label">Desafio</div>
+                    <div class="stat-box-value">{{ monstro.cr|default:"—" }}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-label">Tamanho</div>
+                    <div class="stat-box-value">{{ monstro.tamanho|default:"—" }}</div>
+                </div>
             </div>
-              {% if monstro.pdf %}
-            <div class="field">
-                <label>Arquivo:</label>
-                <div class="value"><a href="{{ monstro.pdf.url }}" target="_blank">📄 Baixar PDF</a></div>
+            
+            <!-- Informações Básicas -->
+            <div class="section">
+                <h3>📋 Informações Básicas</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Tipo</div>
+                        <div class="info-value">{{ monstro.tipo|default:"Não especificado" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Alinhamento</div>
+                        <div class="info-value">{{ monstro.alignment|default:"Não especificado" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Source</div>
+                        <div class="info-value">{{ monstro.source|default:"Unknown" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Challenge Rating</div>
+                        <div class="info-value">{{ monstro.cr|default:"—" }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Atributos (STR, DEX, CON, etc) -->
+            {% if monstro.dados_completos.str or monstro.dados_completos.dex or monstro.dados_completos.con %}
+            <div class="section">
+                <h3>💪 Atributos</h3>
+                <div class="attributes">
+                    <div class="attribute">
+                        <div class="attribute-name">STR</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.str|default:"—" }}</div>
+                    </div>
+                    <div class="attribute">
+                        <div class="attribute-name">DEX</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.dex|default:"—" }}</div>
+                    </div>
+                    <div class="attribute">
+                        <div class="attribute-name">CON</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.con|default:"—" }}</div>
+                    </div>
+                    <div class="attribute">
+                        <div class="attribute-name">INT</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.int|default:"—" }}</div>
+                    </div>
+                    <div class="attribute">
+                        <div class="attribute-name">WIS</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.wis|default:"—" }}</div>
+                    </div>
+                    <div class="attribute">
+                        <div class="attribute-name">CHA</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.cha|default:"—" }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Características comuns -->
+            <div class="section">
+                <h3>⚙️ Características</h3>
+                <div class="common-data">
+                    {% if monstro.dados_completos.skill %}
+                    <div class="common-line">
+                        <span class="common-label">Perícias:</span>
+                        <span class="common-value">
+                            {% for skill, bonus in monstro.dados_completos.skill.items %}
+                                {{ skill|title }}: {{ bonus }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% if monstro.dados_completos.passive %}
+                    <div class="common-line">
+                        <span class="common-label">Percepção Passiva:</span>
+                        <span class="common-value">{{ monstro.dados_completos.passive }}</span>
+                    </div>
+                    {% endif %}
+                    {% if monstro.dados_completos.senses %}
+                    <div class="common-line">
+                        <span class="common-label">Sentidos:</span>
+                        <span class="common-value">{{ monstro.dados_completos.senses|join:", " }}</span>
+                    </div>
+                    {% endif %}
+                    {% if monstro.dados_completos.languages %}
+                    <div class="common-line">
+                        <span class="common-label">Idiomas:</span>
+                        <span class="common-value">{{ monstro.dados_completos.languages|join:", " }}</span>
+                    </div>
+                    {% endif %}
+                    {% if monstro.dados_completos.speed %}
+                    <div class="common-line">
+                        <span class="common-label">Movimento:</span>
+                        <span class="common-value">
+                            {% if monstro.dados_completos.speed.walk %}
+                                Pé {{ monstro.dados_completos.speed.walk }} ft.
+                            {% endif %}
+                            {% if monstro.dados_completos.speed.fly %}
+                                Voo {{ monstro.dados_completos.speed.fly }} ft.
+                            {% endif %}
+                            {% if monstro.dados_completos.speed.swim %}
+                                Nado {{ monstro.dados_completos.speed.swim }} ft.
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Traços especiais (traits) -->
+            {% if monstro.dados_completos.trait %}
+            <div class="section">
+                <h3>✨ Traços Especiais</h3>
+                <div class="traits">
+                    {% for trait in monstro.dados_completos.trait %}
+                    <div class="trait">
+                        <div class="trait-name">{{ trait.name }}</div>
+                        <div class="trait-description">
+                            {% for entry in trait.entries %}
+                                {{ entry }}<br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Ações -->
+            {% if monstro.dados_completos.action %}
+            <div class="section">
+                <h3>⚔️ Ações</h3>
+                <div class="traits">
+                    {% for action in monstro.dados_completos.action %}
+                    <div class="trait">
+                        <div class="trait-name">{{ action.name }}</div>
+                        <div class="trait-description">
+                            {% for entry in action.entries %}
+                                {{ entry }}<br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Dados JSON completos -->
+            <div class="section">
+                <h3>📊 Dados Completos</h3>
+                <div class="json-data">
+                    <details>
+                        <summary>Clique para expandir dados JSON completos</summary>
+                        <pre>{{ monstro.dados_completos|safe }}</pre>
+                    </details>
+                </div>
+            </div>
+            
+            {% if monstro.pdf %}
+            <div class="section">
+                <a href="{{ monstro.pdf.url }}" target="_blank" class="btn">📄 Download PDF</a>
             </div>
             {% endif %}
         </div>

@@ -80,13 +80,48 @@ def detalhe_npc(request, id):
 def lista_monstros(request):
     monstros = Monstro.objects.all().order_by('nome')
     
+    # Busca por nome/tipo
     busca = request.GET.get('busca', '')
     if busca:
         monstros = monstros.filter(Q(nome__icontains=busca) | Q(tipo__icontains=busca))
     
+    # Filtro por tipo
+    tipo = request.GET.get('tipo', '')
+    if tipo:
+        monstros = monstros.filter(tipo__iexact=tipo)
+    
+    # Filtro por tamanho
+    tamanho = request.GET.get('tamanho', '')
+    if tamanho:
+        monstros = monstros.filter(tamanho=tamanho)
+    
+    # Filtro por CR
+    cr = request.GET.get('cr', '')
+    if cr:
+        monstros = monstros.filter(cr=cr)
+    
+    # Filtro por source
+    source = request.GET.get('source', '')
+    if source:
+        monstros = monstros.filter(source__iexact=source)
+    
+    # Opções de filtro disponíveis
+    tipos = Monstro.objects.values_list('tipo', flat=True).distinct().exclude(tipo__isnull=True).exclude(tipo='').order_by('tipo')
+    tamanhos = ['T', 'S', 'M', 'L', 'H', 'G', 'C']
+    crs = Monstro.objects.values_list('cr', flat=True).distinct().exclude(cr__isnull=True).exclude(cr='').order_by('cr')
+    sources = Monstro.objects.values_list('source', flat=True).distinct().exclude(source__isnull=True).exclude(source='').order_by('source')
+    
     context = {
         'monstros': monstros,
-        'busca': busca
+        'busca': busca,
+        'tipo_selecionado': tipo,
+        'tamanho_selecionado': tamanho,
+        'cr_selecionado': cr,
+        'source_selecionado': source,
+        'tipos': tipos,
+        'tamanhos': tamanhos,
+        'crs': crs,
+        'sources': sources,
     }
     return render(request, 'fichas/monstros/lista_monstros.html', context)
 

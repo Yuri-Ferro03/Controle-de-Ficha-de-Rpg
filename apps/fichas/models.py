@@ -18,17 +18,28 @@ class NPC(models.Model):
 
 class Monstro(models.Model):
     nome = models.CharField(max_length=255, unique=True)
-    tipo = models.CharField(max_length=100, blank=True, null=True)
+    tipo = models.CharField(max_length=100, blank=True, null=True)  # humanoid, beast, dragon, etc
+    tamanho = models.CharField(max_length=50, blank=True, null=True)  # T, S, M, L, H, G, C
+    cr = models.CharField(max_length=10, blank=True, null=True)  # Challenge Rating (1/8, 1/4, 1, 2, etc)
+    ac = models.IntegerField(blank=True, null=True)  # Armor Class
+    hp_media = models.IntegerField(blank=True, null=True)  # Hit points average
+    source = models.CharField(max_length=50, default='5etools')  # Which book/supplement
+    alignment = models.CharField(max_length=100, blank=True, null=True)  # e.g., "Chaotic Evil"
     dados_completos = models.JSONField(default=dict, blank=True)
-    source = models.CharField(max_length=50, default='5etools')
     pdf = models.FileField(upload_to='monstro_pdfs/', blank=True, null=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         ordering = ['nome']
+        indexes = [
+            models.Index(fields=['tipo']),
+            models.Index(fields=['cr']),
+            models.Index(fields=['tamanho']),
+            models.Index(fields=['source']),
+        ]
     
     def __str__(self):
-        return self.nome
+        return f"{self.nome} (CR {self.cr})"
     
 
 class InitiativeSession(models.Model):

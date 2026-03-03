@@ -8,5 +8,5 @@ class NPCSerializer(serializers.ModelSerializer):
 class MonstroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Monstro
-    fields = ['id', 'nome', 'tipo', 'dados_completos', 'source', 'pdf', 'criado_em']
-    read_only_fields = ['criado_em', 'id']
+        fields = ['id', 'nome', 'tipo', 'tamanho', 'cr', 'ac', 'hp_media', 'alignment', 'dados_completos', 'source', 'pdf', 'criado_em']
+        read_only_fields = ['criado_em', 'id']
