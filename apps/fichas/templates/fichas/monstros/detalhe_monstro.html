@@ -1,3 +1,4 @@
+{% load monster_filters %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -51,6 +52,7 @@
         .common-line:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .common-label { color: #888; }
         .common-value { color: #ff4444; font-weight: bold; }
+        .common-text { color: #ccc; font-weight: 400; white-space: pre-line; text-align: right; }
         
         .json-data { background: #1a1a1a; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto; border: 1px solid #444; }
         .json-data details { margin-bottom: 10px; }
@@ -134,33 +136,33 @@
             </div>
             
             <!-- Atributos (STR, DEX, CON, etc) -->
-            {% if monstro.dados_completos.str or monstro.dados_completos.dex or monstro.dados_completos.con %}
+            {% if monstro.dados_completos.str or monstro.dados_completos.dex or monstro.dados_completos.con or monstro.forca or monstro.destreza or monstro.constituicao %}
             <div class="section">
                 <h3>💪 Atributos</h3>
                 <div class="attributes">
                     <div class="attribute">
                         <div class="attribute-name">STR</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.str|default:"—" }}</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.str|default:monstro.forca|default:"—" }}</div>
                     </div>
                     <div class="attribute">
                         <div class="attribute-name">DEX</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.dex|default:"—" }}</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.dex|default:monstro.destreza|default:"—" }}</div>
                     </div>
                     <div class="attribute">
                         <div class="attribute-name">CON</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.con|default:"—" }}</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.con|default:monstro.constituicao|default:"—" }}</div>
                     </div>
                     <div class="attribute">
                         <div class="attribute-name">INT</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.int|default:"—" }}</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.int|default:monstro.inteligencia|default:"—" }}</div>
                     </div>
                     <div class="attribute">
                         <div class="attribute-name">WIS</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.wis|default:"—" }}</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.wis|default:monstro.sabedoria|default:"—" }}</div>
                     </div>
                     <div class="attribute">
                         <div class="attribute-name">CHA</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.cha|default:"—" }}</div>
+                        <div class="attribute-value">{{ monstro.dados_completos.cha|default:monstro.carisma|default:"—" }}</div>
                     </div>
                 </div>
             </div>
@@ -214,43 +216,75 @@
                         </span>
                     </div>
                     {% endif %}
+                    {% if monstro.caracteristicas %}
+                    <div class="common-line">
+                        <span class="common-label">Características:</span>
+                        <span class="common-text">{{ monstro.caracteristicas }}</span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             
-            <!-- Traços especiais (traits) -->
-            {% if monstro.dados_completos.trait %}
+            <!-- Traços Especiais (traits) -->
+            {% if monstro.dados_completos.trait or monstro.tracos_especiais %}
             <div class="section">
                 <h3>✨ Traços Especiais</h3>
                 <div class="traits">
-                    {% for trait in monstro.dados_completos.trait %}
-                    <div class="trait">
-                        <div class="trait-name">{{ trait.name }}</div>
-                        <div class="trait-description">
-                            {% for entry in trait.entries %}
-                                {{ entry }}<br>
-                            {% endfor %}
+                    {% if monstro.dados_completos.trait %}
+                        {% for trait in monstro.dados_completos.trait %}
+                        <div class="trait">
+                            <div class="trait-name">{{ trait.name }}</div>
+                            <div class="trait-description">
+                                {% for entry in trait.entries %}
+                                    {{ entry }}<br>
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if monstro.tracos_especiais %}
+                        {% for bloco in monstro.tracos_especiais|parse_blocks %}
+                        <div class="trait">
+                            <div class="trait-name">{{ bloco.name }}</div>
+                            {% if bloco.desc %}
+                            <div class="trait-description">{{ bloco.desc }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
             
             <!-- Ações -->
-            {% if monstro.dados_completos.action %}
+            {% if monstro.dados_completos.action or monstro.habilidades %}
             <div class="section">
                 <h3>⚔️ Ações</h3>
                 <div class="traits">
-                    {% for action in monstro.dados_completos.action %}
-                    <div class="trait">
-                        <div class="trait-name">{{ action.name }}</div>
-                        <div class="trait-description">
-                            {% for entry in action.entries %}
-                                {{ entry }}<br>
-                            {% endfor %}
+                    {% if monstro.dados_completos.action %}
+                        {% for action in monstro.dados_completos.action %}
+                        <div class="trait">
+                            <div class="trait-name">{{ action.name }}</div>
+                            <div class="trait-description">
+                                {% for entry in action.entries %}
+                                    {{ entry }}<br>
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if monstro.habilidades %}
+                        {% for bloco in monstro.habilidades|parse_blocks %}
+                        <div class="trait">
+                            <div class="trait-name">{{ bloco.name }}</div>
+                            {% if bloco.desc %}
+                            <div class="trait-description">{{ bloco.desc }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             {% endif %}

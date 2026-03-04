@@ -25,6 +25,17 @@ class Monstro(models.Model):
     hp_media = models.IntegerField(blank=True, null=True)  # Hit points average
     source = models.CharField(max_length=50, default='5etools')  # Which book/supplement
     alignment = models.CharField(max_length=100, blank=True, null=True)  # e.g., "Chaotic Evil"
+    # Atributos básicos (para monstros criados manualmente)
+    forca = models.IntegerField(blank=True, null=True)
+    destreza = models.IntegerField(blank=True, null=True)
+    constituicao = models.IntegerField(blank=True, null=True)
+    inteligencia = models.IntegerField(blank=True, null=True)
+    sabedoria = models.IntegerField(blank=True, null=True)
+    carisma = models.IntegerField(blank=True, null=True)
+    # Campos livres para monstros cadastrados manualmente
+    caracteristicas = models.TextField(blank=True, null=True)
+    habilidades = models.TextField(blank=True, null=True)
+    tracos_especiais = models.TextField(blank=True, null=True)
     dados_completos = models.JSONField(default=dict, blank=True)
     pdf = models.FileField(upload_to='monstro_pdfs/', blank=True, null=True)
     criado_em = models.DateTimeField(auto_now_add=True)
