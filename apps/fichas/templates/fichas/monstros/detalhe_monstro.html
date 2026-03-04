@@ -255,22 +255,7 @@
             </div>
             {% endif %}
             
-            <!-- Dados JSON completos -->
-            <div class="section">
-                <h3>📊 Dados Completos</h3>
-                <div class="json-data">
-                    <details>
-                        <summary>Clique para expandir dados JSON completos</summary>
-                        <pre>{{ monstro.dados_completos|safe }}</pre>
-                    </details>
-                </div>
-            </div>
-            
-            {% if monstro.pdf %}
-            <div class="section">
-                <a href="{{ monstro.pdf.url }}" target="_blank" class="btn">📄 Download PDF</a>
-            </div>
-            {% endif %}
+           
         </div>
     </div>
 </body>
