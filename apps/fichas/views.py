@@ -237,10 +237,14 @@ def logout(request):
 def _get_initiative_tracker(request):
     tracker = request.session.get(TRACKER_SESSION_KEY)
     if not tracker:
-        tracker = {"participants": [], "current_index": 0, "next_id": 1}
+        tracker = {
+            "participants": [],
+            "current_index": 0,
+            "next_id": 1,
+            "round": 1
+        }
         request.session[TRACKER_SESSION_KEY] = tracker
     return tracker
-
 
 @login_required
 def perfil(request):
@@ -411,5 +415,29 @@ def iniciativa_simple_prev(request):
 def iniciativa_simple_clear(request):
     tracker = {"participants": [], "current_index": 0, "next_id": 1}
     request.session[TRACKER_SESSION_KEY] = tracker
+    home_url = reverse('fichas:home') + '?initiative=open'
+    return redirect(home_url)
+
+@login_required
+@require_http_methods(["POST"])
+def iniciativa_simple_next(request):
+    tracker = _get_initiative_tracker(request)
+
+    participants = tracker.get("participants", [])
+    current_index = tracker.get("current_index", 0)
+    round_number = tracker.get("round", 1)
+
+    if participants:
+        current_index += 1
+
+        if current_index >= len(participants):
+            current_index = 0
+            round_number += 1
+
+    tracker["current_index"] = current_index
+    tracker["round"] = round_number
+
+    request.session[TRACKER_SESSION_KEY] = tracker
+
     home_url = reverse('fichas:home') + '?initiative=open'
     return redirect(home_url)

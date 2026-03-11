@@ -107,12 +107,7 @@ class Command(BaseCommand):
             # Remove chaves e @ para processar
             conteudo = tag_completa[2:-1]  # Remove {@ e }
             
-            # Se houver | significa que tem texto alternativo
-            if '|' in conteudo:
-                partes = conteudo.split('|')
-                return partes[-1].strip()  # Retorna o último item após |
-            
-            # Processa por tipo de tag
+            # Extrai primeiro o tipo (antes do espaço) e o valor restante
             if ' ' in conteudo:
                 partes = conteudo.split(' ', 1)
                 tipo = partes[0]
@@ -120,6 +115,16 @@ class Command(BaseCommand):
             else:
                 tipo = conteudo
                 valor = ''
+
+            # Se o valor contiver '|', há texto alternativo.
+            # Para {@spell Nome|Fonte} queremos o nome; para outros tags,
+            # o texto visível costuma ser o último elemento.
+            if '|' in valor:
+                partes = valor.split('|')
+                if tipo == 'spell':
+                    valor = partes[0].strip()
+                else:
+                    valor = partes[-1].strip()
             
             # Mapeamento de tipos de tags
             if tipo == 'h':
@@ -287,6 +292,22 @@ class Command(BaseCommand):
                     source_abrev = f"{source_map[key]} ({key})"
 
             try:
+                cleaned = self.limpar_dados_recursivo(monster)
+                # certos campos podem vir como número em vez de lista;
+                # transforme em lista de descrição para evitar erros de
+                # template. Especialmente legendaryActionsLair aparece como
+                # inteiro em alguns monstros ("Lich" etc.).
+                if 'legendaryActionsLair' in cleaned:
+                    val = cleaned['legendaryActionsLair']
+                    if isinstance(val, int):
+                        # não existem descrições detalhadas, apenas o número
+                        cleaned['legendaryActionsLair'] = [
+                            f"{val} lair actions"
+                        ]
+                    elif not isinstance(val, list):
+                        # caso improvável, mas garanta iterável
+                        cleaned['legendaryActionsLair'] = [val]
+
                 Monstro.objects.update_or_create(
                     nome=nome,
                     defaults={
@@ -296,7 +317,7 @@ class Command(BaseCommand):
                         'ac': ac,
                         'hp_media': hp_media,
                         'alignment': alignment,
-                        'dados_completos': self.limpar_dados_recursivo(monster),
+                        'dados_completos': cleaned,
                         'source': source_abrev,
                     }
                 )

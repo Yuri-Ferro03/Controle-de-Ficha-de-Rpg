@@ -230,6 +230,11 @@
 
             {% with tracker=initiative_tracker %}
                 {% if tracker.participants %}
+                
+                <span class="badge bg-dark">
+                 Rodada {{ tracker.round|default:1 }}
+                </span>
+
                     <ul class="list-group mb-2">
                         {% for p in tracker.participants %}
                             <li class="list-group-item d-flex justify-content-between align-items-center {% if forloop.counter0 == tracker.current_index %}list-group-item-primary{% endif %}">
@@ -310,6 +315,19 @@
                 }
         }
      })();
+
+     document.addEventListener("DOMContentLoaded", function () {
+    const offcanvas = document.getElementById("offcanvasInitiativa");
+    const button = document.getElementById("initiative-sidebar-btn");
+
+    offcanvas.addEventListener("show.bs.offcanvas", function () {
+        button.style.display = "none";
+    });
+
+    offcanvas.addEventListener("hidden.bs.offcanvas", function () {
+        button.style.display = "block";
+    });
+});
  </script>
   </body>
 </html>

@@ -289,6 +289,165 @@
             </div>
             {% endif %}
             
+            <!-- Ações lendárias -->
+
+            {% if monstro.dados_completos.legendary or monstro.dados_completos.legendaryActions or monstro.acoes_lendarias %}
+            <div class="section">
+                <h3>👑 Ações Lendárias</h3>
+                <div class="traits">
+                    {% if monstro.dados_completos.legendary %}
+                        {% for legendary in monstro.dados_completos.legendary %}
+                        <div class="trait">
+                            <div class="trait-name">{{ legendary.name }}</div>
+                            <div class="trait-description">
+                                {% for entry in legendary.entries %}
+                                    {{ entry }}<br>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% if monstro.dados_completos.legendaryActions %}
+                        {% for entry in monstro.dados_completos.legendaryActions %}
+                        <div class="trait">
+                            <div class="trait-description">
+                                {{ entry }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Ações míticas -->
+            {% if monstro.dados_completos.mythic or monstro.dados_completos.mythicHeader %}
+            <div class="section">
+                <h3>🛕 Ações Míticas</h3>
+                <div class="traits">
+                    {% if monstro.dados_completos.mythicHeader %}
+                    <div class="trait">
+                        <div class="trait-description">
+                            {{ monstro.dados_completos.mythicHeader|join:' ' }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if monstro.dados_completos.mythic %}
+                        {% for myth in monstro.dados_completos.mythic %}
+                        <div class="trait">
+                            <div class="trait-name">{{ myth.name }}</div>
+                            <div class="trait-description">
+                                {% for entry in myth.entries %}
+                                    {{ entry }}<br>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Ações de covil / Lair actions -->
+            {% if monstro.dados_completos.legendaryActionsLair %}
+            <div class="section">
+                <h3>🏰 Ações de Covil</h3>
+                <div class="traits">
+                    {% with lair=monstro.dados_completos.legendaryActionsLair %}
+                        {% if lair|length and lair.0 %}
+                            {# assume iterable #}
+                            {% for entry in lair %}
+                            <div class="trait">
+                                <div class="trait-description">
+                                    {{ entry }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            {# scalar value, just print once #}
+                            <div class="trait">
+                                <div class="trait-description">
+                                    {{ lair }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            {% endif %}
+
+
+            <!-- Spaecial Spellcasting -->
+            {% if monstro.dados_completos.spellcasting %}
+            <div class="section">
+                <h3>🔮 Magias</h3>
+                <div class="traits">
+                    {% for sc in monstro.dados_completos.spellcasting %}
+                    <div class="trait">
+                        <div class="trait-name">{{ sc.name }}</div>
+                        {% if sc.headerEntries %}
+                        <div class="trait-description">
+                            {% for entry in sc.headerEntries %}
+                                {{ entry }}<br>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if sc.will %}
+                        <div class="trait-description">
+                            <strong>Will:</strong> {{ sc.will|join:", " }}
+                        </div>
+                        {% endif %}
+
+                        {% if sc.daily %}
+                        <div class="trait-description">
+                            {% for lvl, spells in sc.daily.items %}
+                                <strong>{{ lvl }}:</strong> {{ spells|join:", " }}<br>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if sc.entries %}
+                        <div class="trait-description">
+                            {% for entry in sc.entries %}
+                                {{ entry }}<br>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reações -->
+            {% if monstro.dados_completos.reaction or monstro.dados_completos.reactionHeader %}
+            <div class="section">
+                <h3>⚡ Reações</h3>
+                <div class="traits">
+                    {% if monstro.dados_completos.reactionHeader %}
+                    <div class="trait">
+                        <div class="trait-description">
+                            {{ monstro.dados_completos.reactionHeader|join:' ' }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if monstro.dados_completos.reaction %}
+                        {% for r in monstro.dados_completos.reaction %}
+                        <div class="trait">
+                            <div class="trait-name">{{ r.name }}</div>
+                            <div class="trait-description">
+                                {% for entry in r.entries %}
+                                    {{ entry }}<br>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
            
         </div>
     </div>

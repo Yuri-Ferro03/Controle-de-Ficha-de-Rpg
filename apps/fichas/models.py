@@ -56,8 +56,11 @@ class Monstro(models.Model):
 class InitiativeSession(models.Model):
     nome = models.CharField(max_length=200)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
     criado_em = models.DateTimeField(auto_now_add=True)
-    current_index = models.IntegerField(default=0)
+
+    current_turn = models.IntegerField(default=0)
+    round_number = models.IntegerField(default=1)
 
     def __str__(self):
         return f"{self.nome} ({self.owner})"
@@ -67,7 +70,6 @@ class InitiativeSession(models.Model):
 
     def participant_count(self):
         return self.participants.count()
-
 
 class InitiativeParticipant(models.Model):
     session = models.ForeignKey(InitiativeSession, related_name='participants', on_delete=models.CASCADE)
@@ -81,3 +83,16 @@ class InitiativeParticipant(models.Model):
     def __str__(self):
         return f"{self.name} ({self.initiative})"
     
+def next_turn(session):
+    participants = list(session.participants.all())
+
+    if not participants:
+        return
+
+    session.current_turn += 1
+
+    if session.current_turn >= len(participants):
+        session.current_turn = 0
+        session.round_number += 1
+
+    session.save()
