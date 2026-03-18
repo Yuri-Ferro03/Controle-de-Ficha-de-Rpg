@@ -115,7 +115,7 @@
             
             <!-- Informações Básicas -->
             <div class="section">
-                <h3>📋 Informações Básicas</h3>
+                <h3> Informações Básicas</h3>
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-label">Tipo</div>
@@ -139,7 +139,7 @@
             <!-- Atributos (STR, DEX, CON, etc) -->
             {% if monstro.dados_completos.str or monstro.dados_completos.dex or monstro.dados_completos.con or monstro.forca or monstro.destreza or monstro.constituicao %}
             <div class="section">
-                <h3>💪 Atributos</h3>
+                <h3> Atributos</h3>
                 <div class="attributes">
                     {% with val=monstro.dados_completos.str|default:monstro.forca %}
                     <div class="attribute">
@@ -219,7 +219,7 @@
             
             <!-- Características comuns -->
             <div class="section">
-                <h3>⚙️ Características</h3>
+                <h3> Características</h3>
                 <div class="common-data">
                     {% if monstro.dados_completos.skill %}
                     <div class="common-line">
@@ -289,7 +289,7 @@
             <!-- Traços Especiais (traits) -->
             {% if monstro.dados_completos.trait or monstro.tracos_especiais %}
             <div class="section">
-                <h3>✨ Traços Especiais</h3>
+                <h3> Traços Especiais</h3>
                 <div class="traits">
                     {% if monstro.dados_completos.trait %}
                         {% for trait in monstro.dados_completos.trait %}
@@ -321,7 +321,7 @@
             <!-- Ações -->
             {% if monstro.dados_completos.action or monstro.habilidades %}
             <div class="section">
-                <h3>⚔️ Ações</h3>
+                <h3> Ações</h3>
                 <div class="traits">
                     {% if monstro.dados_completos.action %}
                         {% for action in monstro.dados_completos.action %}
@@ -354,7 +354,7 @@
 
             {% if monstro.dados_completos.legendary or monstro.dados_completos.legendaryActions or monstro.acoes_lendarias %}
             <div class="section">
-                <h3>👑 Ações Lendárias</h3>
+                <h3> Ações Lendárias</h3>
                 <div class="traits">
                     {% if monstro.dados_completos.legendary %}
                         {% for legendary in monstro.dados_completos.legendary %}
@@ -381,58 +381,57 @@
             </div>
             {% endif %}
 
-            <!-- Ações míticas -->
-            {% if monstro.dados_completos.mythic or monstro.dados_completos.mythicHeader %}
+            <!-- Ações de covil / Lair actions -->
+            {% if lair_actions %}
             <div class="section">
-                <h3>🛕 Ações Míticas</h3>
+                <h3> Ações de Covil</h3>
                 <div class="traits">
-                    {% if monstro.dados_completos.mythicHeader %}
-                    <div class="trait">
-                        <div class="trait-description">
-                            {{ monstro.dados_completos.mythicHeader|join:' ' }}
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if monstro.dados_completos.mythic %}
-                        {% for myth in monstro.dados_completos.mythic %}
+                    {% for item in lair_actions %}
                         <div class="trait">
-                            <div class="trait-name">{{ myth.name }}</div>
-                            <div class="trait-description">
-                                {% for entry in myth.entries %}
-                                    {{ entry }}<br>
-                                {% endfor %}
-                            </div>
+                            {% if item.type == 'named' or item.type == 'named_bullet' %}
+                                <div class="trait-name">{{ item.name }}</div>
+                                <div class="trait-description">
+                                    {% if item.type == 'named_bullet' %}• {% endif %}{{ item.content }}
+                                </div>
+                            {% elif item.type == 'bullet' %}
+                                <div class="trait-description">
+                                    • {{ item.content }}
+                                </div>
+                            {% else %}
+                                <div class="trait-description">
+                                    {{ item.content }}
+                                </div>
+                            {% endif %}
                         </div>
-                        {% endfor %}
-                    {% endif %}
+                    {% endfor %}
                 </div>
             </div>
             {% endif %}
 
-            <!-- Ações de covil / Lair actions -->
-            {% if monstro.dados_completos.legendaryActionsLair %}
+
+            <!-- Efeitos Regionais -->
+            {% if regional_effects %}
             <div class="section">
-                <h3>🏰 Ações de Covil</h3>
+                <h3> Efeitos Regionais</h3>
                 <div class="traits">
-                    {% with lair=monstro.dados_completos.legendaryActionsLair %}
-                        {% if lair|length and lair.0 %}
-                            {# assume iterable #}
-                            {% for entry in lair %}
-                            <div class="trait">
+                    {% for item in regional_effects %}
+                        <div class="trait">
+                            {% if item.type == 'named' or item.type == 'named_bullet' %}
+                                <div class="trait-name">{{ item.name }}</div>
                                 <div class="trait-description">
-                                    {{ entry }}
+                                    {% if item.type == 'named_bullet' %}• {% endif %}{{ item.content }}
                                 </div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            {# scalar value, just print once #}
-                            <div class="trait">
+                            {% elif item.type == 'bullet' %}
                                 <div class="trait-description">
-                                    {{ lair }}
+                                    • {{ item.content }}
                                 </div>
-                            </div>
-                        {% endif %}
-                    {% endwith %}
+                            {% else %}
+                                <div class="trait-description">
+                                    {{ item.content }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
             {% endif %}
@@ -441,7 +440,7 @@
             <!-- Spaecial Spellcasting -->
             {% if monstro.dados_completos.spellcasting %}
             <div class="section">
-                <h3>🔮 Magias</h3>
+                <h3> Magias</h3>
                 <div class="traits">
                     {% for sc in monstro.dados_completos.spellcasting %}
                     <div class="trait">
@@ -484,7 +483,7 @@
             <!-- Reações -->
             {% if monstro.dados_completos.reaction or monstro.dados_completos.reactionHeader %}
             <div class="section">
-                <h3>⚡ Reações</h3>
+                <h3> Reações</h3>
                 <div class="traits">
                     {% if monstro.dados_completos.reactionHeader %}
                     <div class="trait">

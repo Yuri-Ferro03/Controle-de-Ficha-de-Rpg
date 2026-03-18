@@ -53,3 +53,32 @@ def get_saves(value):
     if not isinstance(value, dict):
         return None
     return value.get('save') or value.get('saves')
+
+@register.filter
+def format_lair_or_regional(value):
+    """Formata ações de lair ou efeitos regionais para exibição HTML"""
+    if not value:
+        return ""
+    
+    if not isinstance(value, list):
+        return str(value)
+    
+    result = []
+    for item in value:
+        if isinstance(item, str):
+            result.append(item)
+        elif isinstance(item, dict):
+            if item.get('type') == 'list':
+                # É uma lista de itens
+                items = item.get('items', [])
+                for list_item in items:
+                    if isinstance(list_item, str):
+                        result.append(f"• {list_item}")
+                    else:
+                        result.append(str(list_item))
+            else:
+                # Outro tipo de dict, converter para string
+                result.append(str(item))
+    
+    return '\n'.join(result)
+

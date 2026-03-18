@@ -126,9 +126,6 @@
         </div>
         
         {% if monstros %}
-            <div class="count-info">
-                📊 {{ monstros.count }} monstro{{ monstros.count|pluralize }} encontrado{{ monstros.count|pluralize }}
-            </div>
             <div class="monstro-list">
                 {% for monstro in monstros %}
                     <div class="monstro-card">

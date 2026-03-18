@@ -9,9 +9,166 @@ from django.urls import reverse
 from .models import Monstro, NPC, InitiativeSession, InitiativeParticipant
 from .forms import NPCForm, MonstroForm, InitiativeSessionForm, InitiativeParticipantForm
 import requests
+import json
+import os
 
 
 TRACKER_SESSION_KEY = "initiative_tracker"
+
+# Cache para legendarygroups (carregado uma vez)
+_LEGENDARY_GROUPS_CACHE = None
+
+def _load_legendary_groups():
+    """Carrega os legendary groups do arquivo JSON"""
+    global _LEGENDARY_GROUPS_CACHE
+    
+    if _LEGENDARY_GROUPS_CACHE is not None:
+        return _LEGENDARY_GROUPS_CACHE
+    
+    try:
+        legendary_groups_path = os.path.join('5etools-mirror-3 5etools-src main data', 'bestiary', 'legendarygroups.json')
+        with open(legendary_groups_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Criar um dict com os grupos indexados por (name, source)
+        groups_dict = {}
+        for group in data.get('legendaryGroup', []):
+            key = (group.get('name'), group.get('source'))
+            groups_dict[key] = group
+        
+        _LEGENDARY_GROUPS_CACHE = groups_dict
+        return groups_dict
+    except Exception as e:
+        print(f"Erro ao carregar legendary groups: {e}")
+        _LEGENDARY_GROUPS_CACHE = {}
+        return {}
+
+def _get_lair_actions(monstro):
+    """Extrai as ações de lair baseado no legendaryGroup"""
+    if not isinstance(monstro.dados_completos, dict):
+        return None
+    
+    legendary_group_ref = monstro.dados_completos.get('legendaryGroup')
+    if not legendary_group_ref or not isinstance(legendary_group_ref, dict):
+        return None
+    
+    groups = _load_legendary_groups()
+    key = (legendary_group_ref.get('name'), legendary_group_ref.get('source'))
+    
+    group = groups.get(key)
+    if not group:
+        return None
+    
+    return group.get('lairActions')
+
+def _get_regional_effects(monstro):
+    """Extrai os efeitos regionais baseado no legendaryGroup"""
+    if not isinstance(monstro.dados_completos, dict):
+        return None
+    
+    legendary_group_ref = monstro.dados_completos.get('legendaryGroup')
+    if not legendary_group_ref or not isinstance(legendary_group_ref, dict):
+        return None
+    
+    groups = _load_legendary_groups()
+    key = (legendary_group_ref.get('name'), legendary_group_ref.get('source'))
+    
+    group = groups.get(key)
+    if not group:
+        return None
+    
+    return group.get('regionalEffects')
+
+def _clean_5etools_tags(text):
+    """Remove tags especiais da 5etools do texto (ex: {@spell}, {@dc}, etc)"""
+    import re
+    
+    if not isinstance(text, str):
+        return text
+    
+    # Remover qualquer tag {@...} genérica
+    # Padrão: {@tipo conteudo|outro} ou {@tipo conteudo}
+    # Estratégia: extrair apenas o primeiro argumento após @tipo
+    
+    # Remove {@spell Name|source} -> Name
+    text = re.sub(r'\{@spell\s+([^}|]+)(?:\|[^}]*)?\}', r'\1', text)
+    
+    # Remove {@creature Name|source} -> Name
+    text = re.sub(r'\{@creature\s+([^}|]+)(?:\|[^}]*)?\}', r'\1', text)
+    
+    # Remove {@condition Name} -> Name
+    text = re.sub(r'\{@condition\s+([^}|]+)(?:\|[^}]*)?\}', r'\1', text)
+    
+    # Remove {@dc Number} -> DC Number
+    text = re.sub(r'\{@dc\s+(\d+)\}', r'DC \1', text)
+    
+    # Remove {@damage DiceNotation} -> DiceNotation
+    text = re.sub(r'\{@damage\s+([^}]+)\}', r'\1', text)
+    
+    # Remove {@quickref Name} -> Name
+    text = re.sub(r'\{@quickref\s+([^}|]+)(?:\|[^}]*)?\}', r'\1', text)
+    
+    # Remove {@status Name|Label} -> Label (ou Name se não houver |)
+    text = re.sub(r'\{@status\s+([^}|]+)\|([^}]+)\}', r'\2', text)
+    text = re.sub(r'\{@status\s+([^}]+)\}', r'\1', text)
+    
+    # Remove {@dice DiceNotation} -> DiceNotation
+    text = re.sub(r'\{@dice\s+([^}]+)\}', r'\1', text)
+    
+    # Remover qualquer outro {@...} genérico mantendo o conteúdo
+    # {@tipo conteúdo|outro} -> conteúdo
+    text = re.sub(r'\{@\w+\s+([^}|]+)(?:\|[^}]*)?\}', r'\1', text)
+    
+    return text
+
+def _format_lair_or_regional_actions(data):
+    """Formata ações de lair ou efeitos regionais para exibição"""
+    if not data:
+        return []
+    
+    formatted = []
+    for item in data:
+        if isinstance(item, str):
+            # É uma string simples
+            cleaned = _clean_5etools_tags(item)
+            if cleaned.strip():
+                formatted.append({'type': 'text', 'content': cleaned})
+        elif isinstance(item, dict) and item.get('type') == 'list':
+            # É uma lista com múltiplos itens
+            for list_item in item.get('items', []):
+                if isinstance(list_item, str):
+                    cleaned = _clean_5etools_tags(list_item)
+                    if cleaned.strip():
+                        formatted.append({'type': 'bullet', 'content': cleaned})
+                elif isinstance(list_item, dict) and 'name' in list_item:
+                    # É um dict com nome e descrição
+                    name = list_item.get('name', '')
+                    entries = list_item.get('entries', [])
+                    if entries:
+                        desc = ' '.join([_clean_5etools_tags(e) if isinstance(e, str) else str(e) for e in entries])
+                        formatted.append({'type': 'named_bullet', 'name': name, 'content': desc})
+                    else:
+                        formatted.append({'type': 'bullet', 'content': name})
+                else:
+                    cleaned = _clean_5etools_tags(str(list_item))
+                    if cleaned.strip():
+                        formatted.append({'type': 'bullet', 'content': cleaned})
+        elif isinstance(item, dict) and 'name' in item:
+            # É um dict com nome e descrição
+            name = item.get('name', '')
+            entries = item.get('entries', [])
+            if entries:
+                desc = ' '.join([_clean_5etools_tags(e) if isinstance(e, str) else str(e) for e in entries])
+                formatted.append({'type': 'named', 'name': name, 'content': desc})
+            else:
+                formatted.append({'type': 'text', 'content': name})
+        else:
+            cleaned = _clean_5etools_tags(str(item))
+            if cleaned.strip():
+                formatted.append({'type': 'text', 'content': cleaned})
+    
+    return formatted
+
 
 @require_http_methods(["GET", "POST"])
 def registro(request):
@@ -133,9 +290,19 @@ def detalhe_monstro(request, id):
     if isinstance(monstro.dados_completos, dict):
         saves = monstro.dados_completos.get('save') or monstro.dados_completos.get('saves')
 
+    # Extrai ações de lair e efeitos regionais
+    lair_actions_raw = _get_lair_actions(monstro)
+    regional_effects_raw = _get_regional_effects(monstro)
+    
+    # Formata os dados para exibição no template
+    lair_actions = _format_lair_or_regional_actions(lair_actions_raw)
+    regional_effects = _format_lair_or_regional_actions(regional_effects_raw)
+
     context = {
         'monstro': monstro,
         'saves': saves,
+        'lair_actions': lair_actions,
+        'regional_effects': regional_effects,
     }
     return render(request, 'fichas/monstros/detalhe_monstro.html', context)
 
