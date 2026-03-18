@@ -127,7 +127,16 @@ def lista_monstros(request):
 
 def detalhe_monstro(request, id):
     monstro = get_object_or_404(Monstro, id=id)
-    context = {'monstro': monstro}
+
+    # Extrai salvamentos dos dados completos (campo "save" ou "saves")
+    saves = None
+    if isinstance(monstro.dados_completos, dict):
+        saves = monstro.dados_completos.get('save') or monstro.dados_completos.get('saves')
+
+    context = {
+        'monstro': monstro,
+        'saves': saves,
+    }
     return render(request, 'fichas/monstros/detalhe_monstro.html', context)
 
 @login_required

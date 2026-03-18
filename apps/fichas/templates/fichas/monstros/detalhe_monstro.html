@@ -39,7 +39,8 @@
         .attributes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
         .attribute { background: #1a1a1a; padding: 15px; border-radius: 5px; text-align: center; }
         .attribute-name { color: #ff4444; font-weight: bold; margin-bottom: 5px; }
-        .attribute-value { font-size: 1.6em; color: #fff; font-weight: bold; }
+        .attribute-value { font-size: 1.6em; color: #fff; font-weight: bold; display: flex; justify-content: center; align-items: baseline; gap: 0.4rem; }
+        .attribute-mod { font-size: 0.9em; color: #ccc; }
         
         .traits { background: #1a1a1a; padding: 15px; border-radius: 5px; }
         .trait { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #444; }
@@ -140,30 +141,78 @@
             <div class="section">
                 <h3>💪 Atributos</h3>
                 <div class="attributes">
+                    {% with val=monstro.dados_completos.str|default:monstro.forca %}
                     <div class="attribute">
                         <div class="attribute-name">STR</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.str|default:monstro.forca|default:"—" }}</div>
+                        <div class="attribute-value">
+                            {% if val %}
+                                {{ val }} <span class="attribute-mod">({{ val|stat_modifier }})</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endwith %}
+                    {% with val=monstro.dados_completos.dex|default:monstro.destreza %}
                     <div class="attribute">
                         <div class="attribute-name">DEX</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.dex|default:monstro.destreza|default:"—" }}</div>
+                        <div class="attribute-value">
+                            {% if val %}
+                                {{ val }} <span class="attribute-mod">({{ val|stat_modifier }})</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endwith %}
+                    {% with val=monstro.dados_completos.con|default:monstro.constituicao %}
                     <div class="attribute">
                         <div class="attribute-name">CON</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.con|default:monstro.constituicao|default:"—" }}</div>
+                        <div class="attribute-value">
+                            {% if val %}
+                                {{ val }} <span class="attribute-mod">({{ val|stat_modifier }})</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endwith %}
+                    {% with val=monstro.dados_completos.int|default:monstro.inteligencia %}
                     <div class="attribute">
                         <div class="attribute-name">INT</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.int|default:monstro.inteligencia|default:"—" }}</div>
+                        <div class="attribute-value">
+                            {% if val %}
+                                {{ val }} <span class="attribute-mod">({{ val|stat_modifier }})</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endwith %}
+                    {% with val=monstro.dados_completos.wis|default:monstro.sabedoria %}
                     <div class="attribute">
                         <div class="attribute-name">WIS</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.wis|default:monstro.sabedoria|default:"—" }}</div>
+                        <div class="attribute-value">
+                            {% if val %}
+                                {{ val }} <span class="attribute-mod">({{ val|stat_modifier }})</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endwith %}
+                    {% with val=monstro.dados_completos.cha|default:monstro.carisma %}
                     <div class="attribute">
                         <div class="attribute-name">CHA</div>
-                        <div class="attribute-value">{{ monstro.dados_completos.cha|default:monstro.carisma|default:"—" }}</div>
+                        <div class="attribute-value">
+                            {% if val %}
+                                {{ val }} <span class="attribute-mod">({{ val|stat_modifier }})</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
                     </div>
+                    {% endwith %}
                 </div>
             </div>
             {% endif %}
@@ -182,6 +231,18 @@
                         </span>
                     </div>
                     {% endif %}
+
+                    {% if saves %}
+                    <div class="common-line">
+                        <span class="common-label">Salvamentos:</span>
+                        <span class="common-value">
+                            {% for ability, bonus in saves.items %}
+                                {{ ability|upper }} {{ bonus }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                    {% endif %}
+
                     {% if monstro.dados_completos.passive %}
                     <div class="common-line">
                         <span class="common-label">Percepção Passiva:</span>

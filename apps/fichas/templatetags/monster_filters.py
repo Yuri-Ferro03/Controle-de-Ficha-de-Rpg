@@ -34,3 +34,22 @@ def parse_blocks(value):
             name, desc = line, ""
         blocks.append({"name": name.strip(), "desc": desc.strip()})
     return blocks
+
+
+@register.filter
+def stat_modifier(value):
+    """Retorna o modificador de atributo de D&D (ex: +3, -1) para um valor de habilidade."""
+    try:
+        val = int(value)
+    except (TypeError, ValueError):
+        return ""
+
+    mod = (val - 10) // 2
+    return f"+{mod}" if mod >= 0 else str(mod)
+
+@register.filter
+def get_saves(value):
+    """Retorna o dict de saves (save ou saves) do dados_completos."""
+    if not isinstance(value, dict):
+        return None
+    return value.get('save') or value.get('saves')
