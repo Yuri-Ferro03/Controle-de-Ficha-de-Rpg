@@ -73,25 +73,52 @@ def format_json(value):
 
 @register.filter
 def parse_blocks(value):
-    """Converte texto com linhas em blocos {name, desc}.
+    """Converte texto livre em blocos {name, desc}.
 
-    Cada linha é interpretada como:
-        "Nome: descrição" -> name/desc separados
-        "Apenas nome"     -> name, desc vazio
+    Suporta dois formatos ao digitar no campo de texto:
+
+    1) "Nome: descrição" na mesma linha
+       - Ex.: "Ataque furtivo: o monstro causa muito dano";
+    2) Duas (ou mais) linhas, primeira só com o nome e as seguintes como descrição
+       - Ex.:
+            "Ataque furtivo"
+            "O monstro causa muito dano"
+
+    Linhas vazias são ignoradas. Vários blocos podem ser separados por
+    linhas em branco ou apenas continuando o texto.
     """
     if not value:
         return []
 
     blocks = []
+    current = None
+
     for raw in str(value).splitlines():
         line = raw.strip()
         if not line:
+            # Linha em branco: apenas termina o parágrafo atual
+            current = current  # explícito para clareza; não faz nada
             continue
+
+        # Formato "Nome: desc" em uma linha só
         if ":" in line:
             name, desc = line.split(":", 1)
+            blocks.append({"name": name.strip(), "desc": desc.strip()})
+            current = None
+            continue
+
+        # Sem ":" na linha
+        if current is None or current.get("desc"):
+            # Começa um novo bloco apenas com o nome
+            current = {"name": line, "desc": ""}
+            blocks.append(current)
         else:
-            name, desc = line, ""
-        blocks.append({"name": name.strip(), "desc": desc.strip()})
+            # Já existe um bloco corrente sem descrição: esta linha vira/continua a descrição
+            if current["desc"]:
+                current["desc"] += " " + line
+            else:
+                current["desc"] = line
+
     return blocks
 
 

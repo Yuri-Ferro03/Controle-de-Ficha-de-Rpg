@@ -221,58 +221,88 @@
             <div class="section">
                 <h3> Características</h3>
                 <div class="common-data">
-                    {% if monstro.dados_completos.skill %}
+                    {% if monstro.dados_completos.skill or monstro.pericias %}
                     <div class="common-line">
                         <span class="common-label">Perícias:</span>
                         <span class="common-value">
-                            {% for skill, bonus in monstro.dados_completos.skill.items %}
-                                {{ skill|title }}: {{ bonus }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
+                            {% if monstro.dados_completos.skill %}
+                                {% for skill, bonus in monstro.dados_completos.skill.items %}
+                                    {{ skill|title }}: {{ bonus }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {{ monstro.pericias }}
+                            {% endif %}
                         </span>
                     </div>
                     {% endif %}
 
-                    {% if saves %}
+                    {% if saves or monstro.salvamentos %}
                     <div class="common-line">
                         <span class="common-label">Salvamentos:</span>
                         <span class="common-value">
-                            {% for ability, bonus in saves.items %}
-                                {{ ability|upper }} {{ bonus }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
+                            {% if saves %}
+                                {% for ability, bonus in saves.items %}
+                                    {{ ability|upper }} {{ bonus }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {{ monstro.salvamentos }}
+                            {% endif %}
                         </span>
                     </div>
                     {% endif %}
 
-                    {% if monstro.dados_completos.passive %}
+                    {% if monstro.dados_completos.passive or monstro.percepcao_passiva %}
                     <div class="common-line">
                         <span class="common-label">Percepção Passiva:</span>
-                        <span class="common-value">{{ monstro.dados_completos.passive }}</span>
+                        <span class="common-value">
+                            {% if monstro.dados_completos.passive %}
+                                {{ monstro.dados_completos.passive }}
+                            {% else %}
+                                {{ monstro.percepcao_passiva }}
+                            {% endif %}
+                        </span>
                     </div>
                     {% endif %}
-                    {% if monstro.dados_completos.senses %}
+                    {% if monstro.dados_completos.senses or monstro.sentidos %}
                     <div class="common-line">
                         <span class="common-label">Sentidos:</span>
-                        <span class="common-value">{{ monstro.dados_completos.senses|join:", " }}</span>
+                        <span class="common-value">
+                            {% if monstro.dados_completos.senses %}
+                                {{ monstro.dados_completos.senses|join:", " }}
+                            {% else %}
+                                {{ monstro.sentidos }}
+                            {% endif %}
+                        </span>
                     </div>
                     {% endif %}
-                    {% if monstro.dados_completos.languages %}
+                    {% if monstro.dados_completos.languages or monstro.idiomas %}
                     <div class="common-line">
                         <span class="common-label">Idiomas:</span>
-                        <span class="common-value">{{ monstro.dados_completos.languages|join:", " }}</span>
+                        <span class="common-value">
+                            {% if monstro.dados_completos.languages %}
+                                {{ monstro.dados_completos.languages|join:", " }}
+                            {% else %}
+                                {{ monstro.idiomas }}
+                            {% endif %}
+                        </span>
                     </div>
                     {% endif %}
-                    {% if monstro.dados_completos.speed %}
+                    {% if monstro.dados_completos.speed or monstro.movimento %}
                     <div class="common-line">
                         <span class="common-label">Movimento:</span>
                         <span class="common-value">
-                            {% if monstro.dados_completos.speed.walk %}
-                                Pé {{ monstro.dados_completos.speed.walk|format_speed }}
-                            {% endif %}
-                            {% if monstro.dados_completos.speed.fly %}
-                                Voo {{ monstro.dados_completos.speed.fly|format_speed }}
-                            {% endif %}
-                            {% if monstro.dados_completos.speed.swim %}
-                                Nado {{ monstro.dados_completos.speed.swim|format_speed }}
+                            {% if monstro.dados_completos.speed %}
+                                {% if monstro.dados_completos.speed.walk %}
+                                    Pé {{ monstro.dados_completos.speed.walk|format_speed }}
+                                {% endif %}
+                                {% if monstro.dados_completos.speed.fly %}
+                                    Voo {{ monstro.dados_completos.speed.fly|format_speed }}
+                                {% endif %}
+                                {% if monstro.dados_completos.speed.swim %}
+                                    Nado {{ monstro.dados_completos.speed.swim|format_speed }}
+                                {% endif %}
+                            {% else %}
+                                {{ monstro.movimento }}
                             {% endif %}
                         </span>
                     </div>
@@ -280,7 +310,7 @@
                     {% if monstro.caracteristicas %}
                     <div class="common-line">
                         <span class="common-label">Características:</span>
-                        <span class="common-text">{{ monstro.caracteristicas|clean_5etools }}</span>
+                        <span class="common-value">{{ monstro.caracteristicas|clean_5etools }}</span>
                     </div>
                     {% endif %}
                 </div>
@@ -351,7 +381,6 @@
             {% endif %}
             
             <!-- Ações lendárias -->
-
             {% if monstro.dados_completos.legendary or monstro.dados_completos.legendaryActions or monstro.acoes_lendarias %}
             <div class="section">
                 <h3> Ações Lendárias</h3>
@@ -377,12 +406,22 @@
                         </div>
                         {% endfor %}
                     {% endif %}
+                    {% if monstro.acoes_lendarias %}
+                        {% for bloco in monstro.acoes_lendarias|parse_blocks %}
+                        <div class="trait">
+                            <div class="trait-name">{{ bloco.name }}</div>
+                            {% if bloco.desc %}
+                            <div class="trait-description">{{ bloco.desc|clean_5etools }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
 
             <!-- Ações de covil / Lair actions -->
-            {% if lair_actions %}
+            {% if lair_actions or monstro.acoes_de_covil %}
             <div class="section">
                 <h3> Ações de Covil</h3>
                 <div class="traits">
@@ -404,13 +443,24 @@
                             {% endif %}
                         </div>
                     {% endfor %}
+
+                    {% if monstro.acoes_de_covil %}
+                        {% for bloco in monstro.acoes_de_covil|parse_blocks %}
+                        <div class="trait">
+                            <div class="trait-name">{{ bloco.name }}</div>
+                            {% if bloco.desc %}
+                            <div class="trait-description">{{ bloco.desc|clean_5etools }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
 
 
             <!-- Efeitos Regionais -->
-            {% if regional_effects %}
+            {% if regional_effects or monstro.efeitos_regionais %}
             <div class="section">
                 <h3> Efeitos Regionais</h3>
                 <div class="traits">
@@ -432,13 +482,24 @@
                             {% endif %}
                         </div>
                     {% endfor %}
+
+                    {% if monstro.efeitos_regionais %}
+                        {% for bloco in monstro.efeitos_regionais|parse_blocks %}
+                        <div class="trait">
+                            <div class="trait-name">{{ bloco.name }}</div>
+                            {% if bloco.desc %}
+                            <div class="trait-description">{{ bloco.desc|clean_5etools }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
 
 
             <!-- Spaecial Spellcasting -->
-            {% if monstro.dados_completos.spellcasting %}
+            {% if monstro.dados_completos.spellcasting or monstro.magias %}
             <div class="section">
                 <h3> Magias</h3>
                 <div class="traits">
@@ -476,12 +537,23 @@
                         {% endif %}
                     </div>
                     {% endfor %}
+
+                    {% if monstro.magias %}
+                        {% for bloco in monstro.magias|parse_blocks %}
+                        <div class="trait">
+                            <div class="trait-name">{{ bloco.name }}</div>
+                            {% if bloco.desc %}
+                            <div class="trait-description">{{ bloco.desc|clean_5etools }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
 
             <!-- Reações -->
-            {% if monstro.dados_completos.reaction or monstro.dados_completos.reactionHeader %}
+            {% if monstro.dados_completos.reaction or monstro.dados_completos.reactionHeader or monstro.reacoes %}
             <div class="section">
                 <h3> Reações</h3>
                 <div class="traits">
@@ -501,6 +573,17 @@
                                     {{ entry|clean_5etools }}<br>
                                 {% endfor %}
                             </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if monstro.reacoes %}
+                        {% for bloco in monstro.reacoes|parse_blocks %}
+                        <div class="trait">
+                            <div class="trait-name">{{ bloco.name }}</div>
+                            {% if bloco.desc %}
+                            <div class="trait-description">{{ bloco.desc|clean_5etools }}</div>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     {% endif %}

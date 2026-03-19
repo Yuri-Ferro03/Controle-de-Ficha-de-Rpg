@@ -33,6 +33,7 @@ class Monstro(models.Model):
     sabedoria = models.IntegerField(blank=True, null=True)
     carisma = models.IntegerField(blank=True, null=True)
     # Campos livres para monstros cadastrados manualmente
+    caracteristicas = models.TextField(blank=True, null=True)
     pericias = models.CharField(max_length=255, blank=True, null=True)
     salvamentos = models.CharField(max_length=255, blank=True, null=True)
     percepcao_passiva = models.IntegerField(blank=True, null=True)
@@ -41,6 +42,12 @@ class Monstro(models.Model):
     movimento = models.CharField(max_length=100, blank=True, null=True)
     habilidades = models.TextField(blank=True, null=True)
     tracos_especiais = models.TextField(blank=True, null=True)
+    # Campos textuais extras para monstros criados manualmente
+    acoes_lendarias = models.TextField(blank=True, null=True)
+    reacoes = models.TextField(blank=True, null=True)
+    acoes_de_covil = models.TextField(blank=True, null=True)
+    efeitos_regionais = models.TextField(blank=True, null=True)
+    magias = models.TextField(blank=True, null=True)
     dados_completos = models.JSONField(default=dict, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     

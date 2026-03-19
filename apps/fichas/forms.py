@@ -49,6 +49,7 @@ class MonstroForm(forms.ModelForm):
             'inteligencia',
             'sabedoria',
             'carisma',
+            'caracteristicas',
             'pericias',
             'salvamentos',
             'percepcao_passiva',
@@ -57,6 +58,11 @@ class MonstroForm(forms.ModelForm):
             'movimento',
             'habilidades',
             'tracos_especiais',
+            'acoes_lendarias',
+            'reacoes',
+            'acoes_de_covil',
+            'efeitos_regionais',
+            'magias',
             'source',
         ]
         widgets = {
@@ -73,6 +79,7 @@ class MonstroForm(forms.ModelForm):
             'inteligencia': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'INT'}),
             'sabedoria': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'SAB'}),
             'carisma': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'CAR'}),
+            'caracteristicas': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Características gerais (resistências, imunidades, vulnerabilidades, etc.)', 'rows': 3}),
             'pericias': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Perícias (ex: Perícia +3, Furtividade +5)'}),
             'salvamentos': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Testes de resistência (ex: FOR +2, DES +4)'}),
             'percepcao_passiva': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Percepção Passiva'}),
@@ -81,5 +88,10 @@ class MonstroForm(forms.ModelForm):
             'movimento': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Movimento (ex: 30 pés, voo 60 pés)'}),
             'habilidades': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Habilidades, ataques especiais, magias, etc.', 'rows': 4}),
             'tracos_especiais': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Traços especiais (como descritos no statblock).', 'rows': 4}),
+            'acoes_lendarias': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Ações lendárias, um por linha. Use "Nome: descrição" ou duas linhas (nome na primeira, descrição na(s) seguinte(s)).', 'rows': 4}),
+            'reacoes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Reações do monstro, no mesmo formato de nome + descrição.', 'rows': 3}),
+            'acoes_de_covil': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Ações de covil (lair actions) em formato de nome + descrição.', 'rows': 3}),
+            'efeitos_regionais': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Efeitos regionais em formato de nome + descrição.', 'rows': 3}),
+            'magias': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Magias e detalhes de conjuração do monstro, em blocos de nome + descrição.', 'rows': 4}),
             'source': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Fonte (ex: Manual do Mestre)'}),
         }
