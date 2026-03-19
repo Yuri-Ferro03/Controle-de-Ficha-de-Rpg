@@ -266,13 +266,13 @@
                         <span class="common-label">Movimento:</span>
                         <span class="common-value">
                             {% if monstro.dados_completos.speed.walk %}
-                                Pé {{ monstro.dados_completos.speed.walk }} ft.
+                                Pé {{ monstro.dados_completos.speed.walk|format_speed }}
                             {% endif %}
                             {% if monstro.dados_completos.speed.fly %}
-                                Voo {{ monstro.dados_completos.speed.fly }} ft.
+                                Voo {{ monstro.dados_completos.speed.fly|format_speed }}
                             {% endif %}
                             {% if monstro.dados_completos.speed.swim %}
-                                Nado {{ monstro.dados_completos.speed.swim }} ft.
+                                Nado {{ monstro.dados_completos.speed.swim|format_speed }}
                             {% endif %}
                         </span>
                     </div>
@@ -280,7 +280,7 @@
                     {% if monstro.caracteristicas %}
                     <div class="common-line">
                         <span class="common-label">Características:</span>
-                        <span class="common-text">{{ monstro.caracteristicas }}</span>
+                        <span class="common-text">{{ monstro.caracteristicas|clean_5etools }}</span>
                     </div>
                     {% endif %}
                 </div>
@@ -297,7 +297,7 @@
                             <div class="trait-name">{{ trait.name }}</div>
                             <div class="trait-description">
                                 {% for entry in trait.entries %}
-                                    {{ entry }}<br>
+                                    {{ entry|clean_5etools }}<br>
                                 {% endfor %}
                             </div>
                         </div>
@@ -309,7 +309,7 @@
                         <div class="trait">
                             <div class="trait-name">{{ bloco.name }}</div>
                             {% if bloco.desc %}
-                            <div class="trait-description">{{ bloco.desc }}</div>
+                            <div class="trait-description">{{ bloco.desc|clean_5etools }}</div>
                             {% endif %}
                         </div>
                         {% endfor %}
@@ -329,7 +329,7 @@
                             <div class="trait-name">{{ action.name }}</div>
                             <div class="trait-description">
                                 {% for entry in action.entries %}
-                                    {{ entry }}<br>
+                                    {{ entry|clean_5etools }}<br>
                                 {% endfor %}
                             </div>
                         </div>
@@ -341,7 +341,7 @@
                         <div class="trait">
                             <div class="trait-name">{{ bloco.name }}</div>
                             {% if bloco.desc %}
-                            <div class="trait-description">{{ bloco.desc }}</div>
+                            <div class="trait-description">{{ bloco.desc|clean_5etools }}</div>
                             {% endif %}
                         </div>
                         {% endfor %}
@@ -362,7 +362,7 @@
                             <div class="trait-name">{{ legendary.name }}</div>
                             <div class="trait-description">
                                 {% for entry in legendary.entries %}
-                                    {{ entry }}<br>
+                                    {{ entry|clean_5etools }}<br>
                                 {% endfor %}
                             </div>
                         </div>
@@ -372,7 +372,7 @@
                         {% for entry in monstro.dados_completos.legendaryActions %}
                         <div class="trait">
                             <div class="trait-description">
-                                {{ entry }}
+                                {{ entry|clean_5etools }}
                             </div>
                         </div>
                         {% endfor %}
@@ -391,15 +391,15 @@
                             {% if item.type == 'named' or item.type == 'named_bullet' %}
                                 <div class="trait-name">{{ item.name }}</div>
                                 <div class="trait-description">
-                                    {% if item.type == 'named_bullet' %}• {% endif %}{{ item.content }}
+                                    {% if item.type == 'named_bullet' %}• {% endif %}{{ item.content|clean_5etools }}
                                 </div>
                             {% elif item.type == 'bullet' %}
                                 <div class="trait-description">
-                                    • {{ item.content }}
+                                    • {{ item.content|clean_5etools }}
                                 </div>
                             {% else %}
                                 <div class="trait-description">
-                                    {{ item.content }}
+                                    {{ item.content|clean_5etools }}
                                 </div>
                             {% endif %}
                         </div>
@@ -419,15 +419,15 @@
                             {% if item.type == 'named' or item.type == 'named_bullet' %}
                                 <div class="trait-name">{{ item.name }}</div>
                                 <div class="trait-description">
-                                    {% if item.type == 'named_bullet' %}• {% endif %}{{ item.content }}
+                                    {% if item.type == 'named_bullet' %}• {% endif %}{{ item.content|clean_5etools }}
                                 </div>
                             {% elif item.type == 'bullet' %}
                                 <div class="trait-description">
-                                    • {{ item.content }}
+                                    • {{ item.content|clean_5etools }}
                                 </div>
                             {% else %}
                                 <div class="trait-description">
-                                    {{ item.content }}
+                                    {{ item.content|clean_5etools }}
                                 </div>
                             {% endif %}
                         </div>
@@ -448,21 +448,21 @@
                         {% if sc.headerEntries %}
                         <div class="trait-description">
                             {% for entry in sc.headerEntries %}
-                                {{ entry }}<br>
+                                {{ entry|clean_5etools }}<br>
                             {% endfor %}
                         </div>
                         {% endif %}
 
                         {% if sc.will %}
                         <div class="trait-description">
-                            <strong>Will:</strong> {{ sc.will|join:", " }}
+                            <strong>Livremente:</strong> {{ sc.will|clean_5etools_list|join:", " }}
                         </div>
                         {% endif %}
 
                         {% if sc.daily %}
                         <div class="trait-description">
                             {% for lvl, spells in sc.daily.items %}
-                                <strong>{{ lvl }}:</strong> {{ spells|join:", " }}<br>
+                                <strong>{{ lvl|spellcasting_daily_label }}:</strong> {{ spells|clean_5etools_list|join:", " }}<br>
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -470,7 +470,7 @@
                         {% if sc.entries %}
                         <div class="trait-description">
                             {% for entry in sc.entries %}
-                                {{ entry }}<br>
+                                {{ entry|clean_5etools }}<br>
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -488,7 +488,7 @@
                     {% if monstro.dados_completos.reactionHeader %}
                     <div class="trait">
                         <div class="trait-description">
-                            {{ monstro.dados_completos.reactionHeader|join:' ' }}
+                            {{ monstro.dados_completos.reactionHeader|clean_5etools_list|join:' ' }}
                         </div>
                     </div>
                     {% endif %}
@@ -498,7 +498,7 @@
                             <div class="trait-name">{{ r.name }}</div>
                             <div class="trait-description">
                                 {% for entry in r.entries %}
-                                    {{ entry }}<br>
+                                    {{ entry|clean_5etools }}<br>
                                 {% endfor %}
                             </div>
                         </div>
